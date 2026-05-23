@@ -36,11 +36,11 @@ phases:
 
       - echo "Running Trivy Scan"
 
-      - trivy image production-app:latest
+      - trivy image frontend:latest
 
   post_build:
     commands:
 
       - echo "Pushing Docker Image"
 
-      - docker push docker push 159827196218.dkr.ecr.us-east-1.amazonaws.com/frontend:latest
+      - docker push 159827196218.dkr.ecr.us-east-1.amazonaws.com/frontend:latest
