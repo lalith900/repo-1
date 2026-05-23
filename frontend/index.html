@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Production App</title>
+</head>
+
+<body>
+
+<h1>Application Running Successfully</h1>
+
+<button onclick="getAPI()">Call Backend</button>
+
+<p id="result"></p>
+
+<script>
+
+async function getAPI() {
+
+   const response = await fetch('/api');
+
+   const data = await response.text();
+
+   document.getElementById("result").innerHTML = data;
+}
+
+</script>
+
+</body>
+</html>

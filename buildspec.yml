@@ -1,0 +1,61 @@
+version: 0.2
+
+phases:
+
+  install:
+    commands:
+
+      - echo "Installing Required Packages"
+
+      - apt-get update
+
+      - apt-get install -y wget unzip
+
+      # Install Trivy
+
+      - wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.50.1_Linux-64bit.deb
+
+      - dpkg -i trivy_0.50.1_Linux-64bit.deb
+
+      # Install Sonar Scanner
+
+      - wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
+
+      - unzip sonar-scanner-cli-5.0.1.3006-linux.zip
+
+      - export PATH=$PATH:$(pwd)/sonar-scanner-5.0.1.3006-linux/bin
+
+  pre_build:
+    commands:
+
+      - echo "Logging into Amazon ECR"
+
+      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 159827196218.dkr.ecr.us-east-1.amazonaws.com
+
+      - echo "Running SonarQube Scan"
+
+      - sonar-scanner \
+          -Dsonar.projectKey=project-1 \
+          -Dsonar.sources=. \
+          -Dsonar.host.url=http://SONARQUBE-IP:9000 \
+          -Dsonar.login=sqp_8ee2a1795297a6dcdb879ade004de858c1b2a8f4
+
+  build:
+    commands:
+
+      - echo "Building Docker Image"
+
+      - docker build -t frontend ./backend
+
+      - docker tag frontend:latest 159827196218.dkr.ecr.us-east-1.amazonaws.com/frontend:latest
+
+      - echo "Running Trivy Scan"
+
+      - trivy image production-app:latest
+
+  post_build:
+    commands:
+
+      - echo "Pushing Docker Image"
+
+      - docker push docker push 159827196218.dkr.ecr.us-east-1.amazonaws.com/frontend:latest
